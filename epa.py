@@ -97,7 +97,7 @@ if __name__ == '__main__':
             polyB.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
 
         myEPA = ExpandingPolytopeAlgorithm(polyA, polyB)
-        (isColliding, penD, nvec) = myEPA.calculate()
+        (isColliding, penetrationDepth, normal_vector) = myEPA.calculate()
 
         screen.fill((0, 0, 0))
         drawPolygon(screen, myEPA.polygonA, color = (255, 255, 255) if not isColliding else (255, 0, 0))
@@ -105,8 +105,8 @@ if __name__ == '__main__':
 
         if isColliding:
             font = pygame.font.SysFont(None, 24)
-            penDImg = font.render("Penetration Depth " + str(round(penD, 2)), True, (255, 255, 255))
-            normImg = font.render("Normal " + str(nvec), True, (255, 255, 255))
+            penDImg = font.render("Penetration Depth " + str(round(penetrationDepth, 2)), True, (255, 255, 255))
+            normImg = font.render("Normal " + str(normal_vector), True, (255, 255, 255))
             screen.blit(penDImg, (500, 500))
             screen.blit(normImg, (500, 550))        
 
