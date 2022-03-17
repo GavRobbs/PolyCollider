@@ -105,10 +105,10 @@ if __name__ == '__main__':
 
         if isColliding:
             font = pygame.font.SysFont(None, 24)
-            penDImg = font.render("Penetration Depth " + str(round(penetrationDepth, 2)), True, (255, 255, 255))
-            normImg = font.render("Normal " + str(normal_vector), True, (255, 255, 255))
-            screen.blit(penDImg, (500, 500))
-            screen.blit(normImg, (500, 550))        
+            penDepthText = font.render("Penetration Depth " + str(round(penetrationDepth, 2)), True, (255, 255, 255))
+            normDirText = font.render("Normal " + str(normal_vector), True, (255, 255, 255))
+            screen.blit(penDepthText, (500, 500))
+            screen.blit(normDirText, (500, 550))        
 
         pygame.display.flip()
         clock.tick(60)
