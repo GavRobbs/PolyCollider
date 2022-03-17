@@ -96,7 +96,6 @@ def isPointInTriangle(p, a, b, c):
 def drawPolygon(screen, poly, color=(255, 255, 255)):
     points = [((point + poly.origin).x, (point + poly.origin).y) for point in poly.points]
     pygame.draw.polygon(screen, color, points, 3)
-    pygame.draw.circle(screen, color, poly.origin.asList2(), 2, 0)
 
 def drawLine(screen, start, end, color=(0, 255, 0)):
     pygame.draw.line(screen, color, start.asList2(), end.asList2(), 2)
