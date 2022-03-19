@@ -50,10 +50,12 @@ def rotateAround(inputVector, angle_rad, around=Vector(0.0, 0.0)):
     return temp + around
 
 class Edge:
-    def __init__(self, referencePolygon, startIndex, endIndex):
-        self.referencePolygon = referencePolygon
+    def __init__(self, poly_points, startIndex, endIndex):
         self.startIndex = startIndex
         self.endIndex = endIndex
+    def getNormal(poly_points):
+        direction_vector = poly_points[startIndex] - poly_points[endIndex]
+        return Vector(direction_vector.y, -direction_vector.x)
 
 class Polygon:
     def __init__(self, origin=Vector(0, 0), rotation=0.0):
