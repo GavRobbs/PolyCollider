@@ -10,3 +10,13 @@ GJK (Gilbert-Johnson-Keerthi algorithm) - This is used during narrow phase colli
 EPA (Expanding Polytope Algorithm) - This expands on the GJK algorithm to generate a collision normal and penetration depth, useful for linear collision response.
 
 Sutherland-Hodgeman Polygon Clipping Algorithm - This uses the normal and penetration depth obtained from the EPA to determine collision points between two polygons, useful for rotational collision response.
+
+## References
+
+https://cs.brown.edu/courses/csci1950-u/lectures/04_advancedCollisionsAndPhysics.pdf
+
+https://fjinn.github.io/Experiences/Programming/Math/GJKAlgorithm_README.html
+
+https://github.com/kroitor/gjk.c
+
+https://www.youtube.com/watch?v=Qupqu1xe7Io

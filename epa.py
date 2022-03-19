@@ -112,7 +112,7 @@ if __name__ == '__main__':
             penDepthText = font.render("Penetration Depth " + str(round(penetrationDepth, 2)), True, (255, 255, 255))
             normDirText = font.render("Normal " + str(normal_vector), True, (255, 255, 255))
             screen.blit(penDepthText, (500, 500))
-            screen.blit(normDirText, (500, 550))        
+            screen.blit(normDirText, (500, 550))    
 
         pygame.display.flip()
         clock.tick(60)
