@@ -1,5 +1,6 @@
 import math
 import pygame
+import functools
 
 class Vector:
     def __init__(self, x = 0.0, y = 0.0):
@@ -36,6 +37,18 @@ class Vector:
     def asList2(self):
         return [self.x, self.y]
 
+def rotateAround(inputVector, angle_rad, around=Vector(0.0, 0.0)):
+    temp = Vector(inputVector.x, inputVector.y)
+    if angle_rad == 0.0:
+        return temp
+
+    temp = temp - around
+
+    temp.x = inputVector.x * math.cos(angle_rad) - inputVector.y * math.sin(angle_rad)
+    temp.y = inputVector.x * math.sin(angle_rad) + inputVector.y * math.cos(angle_rad)
+
+    return temp + around
+
 class Edge:
     def __init__(self, referencePolygon, startIndex, endIndex):
         self.referencePolygon = referencePolygon
@@ -43,12 +56,15 @@ class Edge:
         self.endIndex = endIndex
 
 class Polygon:
-    def __init__(self, origin=Vector(0, 0)):
+    def __init__(self, origin=Vector(0, 0), rotation=0.0):
         self.points = []
         self.origin = origin
+        self.rotation = rotation
+        self.centroid_local = Vector(0.0, 0.0)
     def addPoint(self, point):
         """Add a point to the polygon list, its up to you to ensure its counterclockwise"""
         self.points.append(point)
+        self.__calculateCentroid()
     def getEdgeList(self):
         """Gets a normalized list of the edges in the polygon, note that this is clockwise"""
         i = 0
@@ -62,11 +78,26 @@ class Polygon:
             i += 1
         
         return edges
-    def getSupportPoint(self, normal):
-        return max(self.points, key=lambda pt: pt.dot(normal)) + self.origin
+    def getFurthestPoint(self, normal):
+        return max(self.getTransformedPoints()[0], key=lambda pt: pt.dot(normal))
 
-def getMinkowskiDifference(polyA, polyB, normal):
-    return polyA.getSupportPoint(normal) - polyB.getSupportPoint(-1.0 * normal)
+    def __calculateCentroid(self):
+        total = functools.reduce(lambda a,b: a+b, self.points)
+        self.centroid_local = total / len(self.points)
+
+    def getCentroidWorldSpace(self):
+        return self.centroid_local + self.origin
+
+    def getTransformedPoints(self):
+        points_base = [(point - self.centroid_local) for point in self.points]
+        rot_points = [rotateAround(point, self.rotation, Vector(0.0, 0.0)) for point in points_base]
+        points = [(point + self.origin) for point in rot_points]
+
+        return (points, functools.reduce(lambda a,b: a+b, points) / len(points))
+    
+
+def support(polyA, polyB, normal):
+    return polyA.getFurthestPoint(normal) - polyB.getFurthestPoint(-1.0 * normal)
 
 def getCrossProduct(p1, p2):
     return [p1[1] * p2[2] - p1[2] * p2[1], -(p1[0] * p2[2] - p1[2] * p2[0]), p1[0] * p2[1] - p1[1] * p2[0]]
@@ -94,8 +125,9 @@ def isPointInTriangle(p, a, b, c):
         return False
 
 def drawPolygon(screen, poly, color=(255, 255, 255)):
-    points = [((point + poly.origin).x, (point + poly.origin).y) for point in poly.points]
-    pygame.draw.polygon(screen, color, points, 3)
+    (points, centroid_ws) = poly.getTransformedPoints()
+    pygame.draw.polygon(screen, color, [point.asList2() for point in points], 3)
+    drawCircle(screen, centroid_ws, 3)
 
 def drawLine(screen, start, end, color=(0, 255, 0)):
     pygame.draw.line(screen, color, start.asList2(), end.asList2(), 2)

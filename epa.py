@@ -46,7 +46,7 @@ class ExpandingPolytopeAlgorithm(gjk.GJKAlgorithm):
                     minNormal = normal
                     minIndex = j
 
-            supportPoint = getMinkowskiDifference(self.polygonA, self.polygonB, minNormal)
+            supportPoint = support(self.polygonA, self.polygonB, minNormal)
             supportDistance = minNormal.dot(supportPoint)
 
             #If the distance of the support point along the normal and the distance of the edge from the normal are within tolerance
@@ -79,6 +79,7 @@ if __name__ == '__main__':
 
     currentControl = 1
     speed = 6.0
+    rot_speed = 0.15
     
     while running:
         for event in pygame.event.get():
@@ -93,8 +94,11 @@ if __name__ == '__main__':
         keys = pygame.key.get_pressed()
         if currentControl == 1:
             polyA.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
+            polyA.rotation += keys[pygame.K_r] * rot_speed * 0.1666
+
         else:
             polyB.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
+            polyB.rotation += keys[pygame.K_r] * rot_speed * 0.1666
 
         myEPA = ExpandingPolytopeAlgorithm(polyA, polyB)
         (isColliding, penetrationDepth, normal_vector) = myEPA.calculate()

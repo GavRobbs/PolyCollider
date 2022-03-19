@@ -17,33 +17,31 @@ class GJKAlgorithm:
 
         if len(simplex) == 2:
 
+            #This finds the direction of the nearest point to the origin using
+            #the triple product, but this could also be calculated using
+            #barycentric coordinates - see Erin Catto's GDC presentation
+
             simplex_vector = simplex[1] - simplex[0]
-            svmag = simplex_vector.getMagnitude()
-            simplex_normal = Vector(simplex_vector.x, simplex_vector.y)
-            simplex_normal.normalize()
-            v = (simplex[0] * -1.0).dot(simplex_normal) / svmag
-            u = simplex[1].dot(simplex_normal) / svmag
-            if u <= 0.0:
-                direction = simplex[1] * -1.0
-            elif v <= 0.0:
-                direction = simplex[0] * -1.0
-            else:
-                direction = (u * simplex[0] + v * simplex[1]) * -1.0
+            to_origin = simplex[0] * -1
+            direction = getTripleProduct(simplex_vector, to_origin, simplex_vector)
             return (simplex, direction, False)
         elif len(simplex) == 3:
 
             if(isPointInTriangle(Vector(0.0, 0.0), simplex[0], simplex[1], simplex[2])):
                 return (simplex, direction, True)
             else:
+                #Drop the first coordinate of the simplex generated
+                #Find a new direction towards the origin, so you can get another
+                #point to try
                 simplex.pop(0)
-                vCB = simplex[1] - simplex[0]
-                vCO = simplex[0] * -1.0
-                direction = getTripleProduct(vCB, vCO, vCB)
+                simplex_vector = simplex[1] - simplex[0]
+                to_origin = simplex[0] * -1.0
+                direction = getTripleProduct(simplex_vector, to_origin, simplex_vector)
                 return (simplex, direction, False)
 
     def calculate(self):
         """ This main loop is taken from wikipedia. We pick an arbitrary starting direction and put it in our simplex - so we start with a 0-simplex. We then invert the direction of that point to get a second point, directly opposite to our starting point, creating our initial 1-simplex. The doSimplex function evolves the simplex, both returning the new direction that the simplex should check in for new support points to add, or any modifications to the simplex"""
-        a = getMinkowskiDifference(self.polygonA, self.polygonB, Vector(1.0, 0.0))
+        a = support(self.polygonA, self.polygonB, Vector(1.0, 0.0))
         simplex = [a]
         d = a * -1.0
 
@@ -53,10 +51,11 @@ class GJKAlgorithm:
 
             numIterations += 1
 
+            #Stop this from blowing up
             if numIterations > 20:
                 return False
 
-            b = getMinkowskiDifference(self.polygonA, self.polygonB, d)
+            b = support(self.polygonA, self.polygonB, d)
             if(b.dot(d) < 0):
                 return False
             else:
@@ -91,6 +90,7 @@ if __name__ == '__main__':
     
     currentControl = 1
     speed = 6.0
+    rot_speed = 0.15
     
     while running:
         for event in pygame.event.get():
@@ -105,8 +105,11 @@ if __name__ == '__main__':
         keys = pygame.key.get_pressed()
         if currentControl == 1:
             polyA.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
+            polyA.rotation += keys[pygame.K_r] * rot_speed * 0.1666
         else:
             polyB.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
+            polyB.rotation += keys[pygame.K_r] * rot_speed * 0.1666
+
 
         myGJK = GJKAlgorithm(polyA, polyB)
         isColliding = myGJK.calculate()
