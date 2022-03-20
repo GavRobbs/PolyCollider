@@ -50,12 +50,29 @@ def rotateAround(inputVector, angle_rad, around=Vector(0.0, 0.0)):
     return temp + around
 
 class Edge:
-    def __init__(self, poly_points, startIndex, endIndex):
+    def __init__(self, startIndex, endIndex):
         self.startIndex = startIndex
         self.endIndex = endIndex
-    def getNormal(poly_points):
-        direction_vector = poly_points[startIndex] - poly_points[endIndex]
+    def getNormal(self, poly_points):
+        direction_vector = poly_points[self.startIndex] - poly_points[self.endIndex]
         return Vector(direction_vector.y, -direction_vector.x)
+    def __str__(self):
+        return "Start Index: " + str(self.startIndex) + " End Index: " + str(self.endIndex)
+
+class EdgeList:
+    def __init__(self, edges):
+        self.edges = edges
+    def getEdgesContainingVertex(self, vertex, poly_points):
+        results = []
+        for edge in self.edges:
+            if poly_points[edge.startIndex] == vertex or poly_points[edge.endIndex] == vertex:
+                results.append(edge)
+        return results
+    def getAdjacentEdges(self, edge, poly_points):
+        numPoints = len(poly_points)
+        edge1 = Edge(edge.endIndex, (edge.endIndex + 1) % numPoints)
+        edge2 = Edge((edge.startIndex - 1) % numPoints, edge.startIndex)
+        return [edge1, edge2]
 
 class Polygon:
     def __init__(self, origin=Vector(0, 0), rotation=0.0):
@@ -73,13 +90,12 @@ class Polygon:
         numPoints = len(self.points)
         edges = []
         while i < numPoints + 1:
-            point1 = self.points[i % numPoints]
-            point2 = self.points[(i + 1) % numPoints]
-            edgeVector = (point2 - point1).normalize()
-            edges.append(edgeVector)
+            edge1Index = i % numPoints
+            edge2Index = (i + 1) % numPoints
+            edges.append(Edge(edge1Index, edge2Index))
             i += 1
         
-        return edges
+        return EdgeList(edges)
     def getFurthestPoint(self, normal):
         return max(self.getTransformedPoints()[0], key=lambda pt: pt.dot(normal))
 
@@ -134,5 +150,5 @@ def drawPolygon(screen, poly, color=(255, 255, 255)):
 def drawLine(screen, start, end, color=(0, 255, 0)):
     pygame.draw.line(screen, color, start.asList2(), end.asList2(), 2)
 
-def drawCircle(screen, origin, radius):
-    pygame.draw.circle(screen, (255, 255, 0), origin.asList2(), radius, 0)
+def drawCircle(screen, origin, radius, color=(255, 255, 0)):
+    pygame.draw.circle(screen, color, origin.asList2(), radius, 0)

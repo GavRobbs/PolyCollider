@@ -70,8 +70,8 @@ class GJKAlgorithm:
 if __name__ == '__main__':
     polyA = Polygon(Vector(215.0, 215.0))
     polyA.addPoint(Vector(0.0, 50.0))
-    polyA.addPoint(Vector(50.0, 0.0))
     polyA.addPoint(Vector(-50.0, 0.0))
+    polyA.addPoint(Vector(50.0, 0.0))
 
     polyB = Polygon(Vector(190, 190))
     angle = 2.0 * math.pi / 8.0

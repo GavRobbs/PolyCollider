@@ -55,13 +55,13 @@ class ExpandingPolytopeAlgorithm(gjk.GJKAlgorithm):
                 minDistance = float('inf')
                 polytope.insert(minIndex, supportPoint)
         
-        return (True, minDistance + self.TOLERANCE, minNormal * -1)
+        return (True, minDistance + self.TOLERANCE, minNormal)
  
 if __name__ == '__main__':
     polyA = Polygon(Vector(165.0, 175.0))
     polyA.addPoint(Vector(0.0, -60.0))
-    polyA.addPoint(Vector(60.0, 60.0))
     polyA.addPoint(Vector(-60.0, 60.0))
+    polyA.addPoint(Vector(60.0, 60.0))
 
     polyB = Polygon(Vector(205, 175))
     angle = 2.0 * math.pi / 9.0
