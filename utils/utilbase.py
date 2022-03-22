@@ -121,7 +121,7 @@ def getCrossProduct(p1, p2):
     return [p1[1] * p2[2] - p1[2] * p2[1], -(p1[0] * p2[2] - p1[2] * p2[0]), p1[0] * p2[1] - p1[1] * p2[0]]
 
 def getTripleProduct(a, b, c):
-    return b * (a.dot(c)) - c * (a.dot(b))
+    return b * (a.dot(c)) - a * (c.dot(b))
 
 def isPointInTriangle(p, a, b, c):
     ab = b - a
