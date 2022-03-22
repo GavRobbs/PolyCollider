@@ -53,8 +53,11 @@ class Edge:
     def __init__(self, startIndex, endIndex):
         self.startIndex = startIndex
         self.endIndex = endIndex
-    def getNormal(self, poly_points):
+    def getNormal(self, poly_points, normalize=False):
         direction_vector = poly_points[self.startIndex] - poly_points[self.endIndex]
+
+        if normalize == True:
+            direction_vector.normalize()
         return Vector(direction_vector.y, -direction_vector.x)
     def __str__(self):
         return "Start Index: " + str(self.startIndex) + " End Index: " + str(self.endIndex)
