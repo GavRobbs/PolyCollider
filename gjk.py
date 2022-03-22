@@ -8,63 +8,48 @@ class GJKAlgorithm:
         self.polygonB = polyB
         self.final_simplex = None
 
-    def __doSimplex(self, simplex):
-
-        """ This function evolves the simplex in GJK speak - it first checks if the simplex has 2 or 3 points. If it has 2 points, it uses a trick with barycentric coordinates to calculate the direction of the closest point to the origin - see Erin Catto's slides.
-        
-        If the simplex already has 3 points, then we check to see if the origin is contained in it, and return True, otherwise we remove the non-contributing first point and get the direction of the closest point P on the remaining 1-simplex to the origin """
-        direction = Vector(0.0, 0.0)
-
-        if len(simplex) == 2:
-
-            #This finds the direction of the nearest point to the origin using
-            #the triple product, but this could also be calculated using
-            #barycentric coordinates - see Erin Catto's GDC presentation
-
-            simplex_vector = simplex[1] - simplex[0]
-            to_origin = simplex[0] * -1
-            direction = getTripleProduct(simplex_vector, to_origin, simplex_vector)
-            return (simplex, direction, False)
-        elif len(simplex) == 3:
-
-            if(isPointInTriangle(Vector(0.0, 0.0), simplex[0], simplex[1], simplex[2])):
-                return (simplex, direction, True)
-            else:
-                #Drop the first coordinate of the simplex generated
-                #Find a new direction towards the origin, so you can get another
-                #point to try
-                simplex.pop(0)
-                simplex_vector = simplex[1] - simplex[0]
-                to_origin = simplex[0] * -1.0
-                direction = getTripleProduct(simplex_vector, to_origin, simplex_vector)
-                return (simplex, direction, False)
-
     def calculate(self):
-        """ This main loop is taken from wikipedia. We pick an arbitrary starting direction and put it in our simplex - so we start with a 0-simplex. We then invert the direction of that point to get a second point, directly opposite to our starting point, creating our initial 1-simplex. The doSimplex function evolves the simplex, both returning the new direction that the simplex should check in for new support points to add, or any modifications to the simplex"""
-        a = support(self.polygonA, self.polygonB, Vector(1.0, 0.0))
-        simplex = [a]
-        d = a * -1.0
+        """ We pick an arbitrary starting direction and put it in our simplex - so we start with a 0-simplex. We then invert the direction of that point to get a second point, directly opposite to our starting point, creating our initial 1-simplex. We then get the vector triple product to give us a perpendicular vector towards the origin to evolve our 2-simplex. In the main loop of the function, we check if the origin lies in either of the Voronoi regions. If the origin lies in the AB Voronoi region, then we create a perpendicular from AB pointing towards the origin, and set that as the new direction, then use it to replace C. If it lies in the AC Voronoi region, we create a perpendicular from AC pointing towards the origin and use that to replace B. If the origin is in neither Voronoi region, then it must be within the triangle formed by ABC, so we return true and terminate. Otherwise, we start the loop over and continue to evolve the simplex until our iteration limit is reached. """
+        
+        C = support(self.polygonA, self.polygonB, Vector(1.0, 0.0))
+        d = C * -1.0
+        B = support(self.polygonA, self.polygonB, d)
+        if(B.dot(d) < 0):
+            return False
+        
+        BC = C - B
+        BO = B * -1.0
+        d = getTripleProduct(BC, BO, BC)
 
+        A = support(self.polygonA, self.polygonB, d)
         numIterations = 0
 
         while True:
 
             numIterations += 1
 
-            #Stop this from blowing up
-            if numIterations > 20:
+            #Stop this from blowing up, return if iteration limit reached
+            if numIterations > 30:
                 return False
 
-            b = support(self.polygonA, self.polygonB, d)
-            if(b.dot(d) < 0):
-                return False
-            else:
-                simplex.append(b)
-                simplex, d, contains_origin = self.__doSimplex(simplex)
+            AB = B - A
+            AC = C - A
+            AbPerp = getTripleProduct(AC, AB, AB)
+            AO = A * -1.0
 
-                if contains_origin:
-                    self.final_simplex = simplex
-                    return True
+            if AbPerp.dot(AO) >= 0:
+                d = AbPerp
+                C = support(self.polygonA, self.polygonB, d)
+                continue
+
+            AcPerp = getTripleProduct(AB, AC, AC)
+            if AcPerp.dot(AO) >= 0:
+                d = AcPerp
+                B = support(self.polygonA, self.polygonB, d)
+                continue
+
+            self.final_simplex = [C, B, A]
+            return True
                 
 
 if __name__ == '__main__':

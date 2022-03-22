@@ -53,8 +53,11 @@ class Edge:
     def __init__(self, startIndex, endIndex):
         self.startIndex = startIndex
         self.endIndex = endIndex
-    def getNormal(self, poly_points):
+    def getNormal(self, poly_points, normalize=False):
         direction_vector = poly_points[self.startIndex] - poly_points[self.endIndex]
+
+        if normalize == True:
+            direction_vector.normalize()
         return Vector(direction_vector.y, -direction_vector.x)
     def __str__(self):
         return "Start Index: " + str(self.startIndex) + " End Index: " + str(self.endIndex)
@@ -115,13 +118,13 @@ class Polygon:
     
 
 def support(polyA, polyB, normal):
-    return polyA.getFurthestPoint(normal) - polyB.getFurthestPoint(-1.0 * normal)
+    return polyB.getFurthestPoint(normal) - polyA.getFurthestPoint(-1.0 * normal)
 
 def getCrossProduct(p1, p2):
     return [p1[1] * p2[2] - p1[2] * p2[1], -(p1[0] * p2[2] - p1[2] * p2[0]), p1[0] * p2[1] - p1[1] * p2[0]]
 
 def getTripleProduct(a, b, c):
-    return b * (a.dot(c)) - c * (a.dot(b))
+    return b * (a.dot(c)) - a * (c.dot(b))
 
 def isPointInTriangle(p, a, b, c):
     ab = b - a
