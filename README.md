@@ -64,7 +64,7 @@ TODO: Insert diagram here
 The vector triple product requires 3 vectors, $\vec{A}, \vec{B}, \vec{C}$.
 
 It is given by:
- $$\vec{A}\times(\vec{B}\times\vec{C})$$
+ $$(\vec{A}\times\vec{B})\times\vec{C}$$
 
 It produces a vector that is coplanar with $\vec{B}$ and $\vec{C}$ and perpendicular to $\vec{A}$. Coplanar means that the vectors lie on the same plane.
 
@@ -84,7 +84,7 @@ TODO: Insert diagram here so its less confusing
 
 There is a simplified formula that can be used for the vector triple product:
 
-$$\vec{A}\times\vec{B}\times\vec{C} = \vec{B}(\vec{A}\cdot\vec{C}) - \vec{C}(\vec{A}\cdot\vec{B})$$
+$$(\vec{A}\times\vec{B})\times\vec{C} = \vec{B}(\vec{C}\cdot\vec{A})$$ -\vec{A}(\vec{C}\cdot\vec{B}) 
 
 It is informally known as the BAC-CAB rule, as an aid to memory. The derivation is somewhat complex, so you'll have to take my word for it, or at least look it up.
 
