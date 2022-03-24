@@ -1,14 +1,17 @@
 import epa
 from utils.utilbase import *
 
-class PolyCollider(epa.ExpandingPolytopeAlgorithm):
-    def __init__(self, polyA, polyB):
-        super().__init__(polyA, polyB)
+class SutherlandHodgemanAlgorithm:
+    def __init__(self, polyA, polyB, normal, penetrationDepth):
+        self.polygonA = polyA
+        self.polygonB = polyB
         self.polyAPoints = polyA.getTransformedPoints()[0]
         self.polyBPoints = polyB.getTransformedPoints()[0]
         self.polyAEdges = polyA.getEdgeList()
         self.polyBEdges = polyB.getEdgeList()
         self.TOLERANCE = 0.0001
+        self.normal = normal
+        self.penetrationDepth = penetrationDepth
 
 
     def __calculateIntersectionPoint(self, p1, p2, p3, p4):
@@ -124,12 +127,7 @@ class PolyCollider(epa.ExpandingPolytopeAlgorithm):
         
     def calculate(self):
 
-        (hasCollision, penetrationDepth, normal) = super().calculate()
-
-        if hasCollision == False:
-            return (False, 0.0, None, [])
-
-        (referenceEdge, incidentEdge, referenceFrom) = self.__findSignificantEdges(normal)
+        (referenceEdge, incidentEdge, referenceFrom) = self.__findSignificantEdges(self.normal)
         points_to_clip = []
         clipped = []
         
@@ -154,7 +152,7 @@ class PolyCollider(epa.ExpandingPolytopeAlgorithm):
 
             clipped = self.__clip(points_to_clip, referenceEdge, self.polyBPoints, False)
 
-        return (True, penetrationDepth, normal, clipped)
+        return clipped
 
 if __name__ == '__main__':
     polyA = Polygon(Vector(165.0, 175.0))
@@ -165,14 +163,14 @@ if __name__ == '__main__':
 
 
     polyB = Polygon(Vector(405, 255))
-    polyB.addPoint(Vector(-160.0, -160.0))
-    polyB.addPoint(Vector(-160.0, 160.0))
-    polyB.addPoint(Vector(160.0, 160.0))
-    polyB.addPoint(Vector(160.0, -160.0))
-    #angle = 2.0 * math.pi / 16.0
-    #for i in range(0, -16, -1):
-    #    newPt = Vector(120 * math.cos(angle * i), 120 * math.sin(angle * i))
-    #    polyB.addPoint(newPt)
+    #polyB.addPoint(Vector(-160.0, -160.0))
+    #polyB.addPoint(Vector(-160.0, 160.0))
+    #polyB.addPoint(Vector(160.0, 160.0))
+    #polyB.addPoint(Vector(160.0, -160.0))
+    angle = 2.0 * math.pi / 16.0
+    for i in range(0, -16, -1):
+        newPt = Vector(120 * math.cos(angle * i), 120 * math.sin(angle * i))
+        polyB.addPoint(newPt)
 
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
@@ -205,12 +203,12 @@ if __name__ == '__main__':
             polyB.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
             polyB.rotation += keys[pygame.K_r] * rot_speed * 0.1666
 
-        myPC = PolyCollider(polyA, polyB)
-        (isColliding, penetrationDepth, normal_vector, collisionPoints) = myPC.calculate()
+        myEPA = epa.ExpandingPolytopeAlgorithm(polyA, polyB)
+        (isColliding, penetrationDepth, normal_vector) = myEPA.calculate()
 
         screen.fill((0, 0, 0))
-        drawPolygon(screen, myPC.polygonA, color = (255, 255, 255) if not isColliding else (255, 0, 0))
-        drawPolygon(screen, myPC.polygonB, color = (255, 255, 255) if not isColliding else (255, 0, 0))
+        drawPolygon(screen, myEPA.polygonA, color = (255, 255, 255) if not isColliding else (255, 0, 0))
+        drawPolygon(screen, myEPA.polygonB, color = (255, 255, 255) if not isColliding else (255, 0, 0))
 
         if isColliding:
             font = pygame.font.SysFont(None, 24)
@@ -219,8 +217,10 @@ if __name__ == '__main__':
             screen.blit(penDepthText, (500, 500))
             screen.blit(normDirText, (500, 550))
 
+            pointGenerator = SutherlandHodgemanAlgorithm(myEPA.polygonA, myEPA.polygonB, normal_vector, penetrationDepth)
+            collisionPoints = pointGenerator.calculate()
+
             for point in collisionPoints:
-                print(str(point))
                 drawCircle(screen, point, 3.0, color=(0, 0, 255))
 
         pygame.display.flip()
