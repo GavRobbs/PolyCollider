@@ -163,14 +163,14 @@ if __name__ == '__main__':
 
 
     polyB = Polygon(Vector(405, 255))
-    polyB.addPoint(Vector(-160.0, -160.0))
-    polyB.addPoint(Vector(-160.0, 160.0))
-    polyB.addPoint(Vector(160.0, 160.0))
-    polyB.addPoint(Vector(160.0, -160.0))
-    #angle = 2.0 * math.pi / 16.0
-    #for i in range(0, -16, -1):
-    #    newPt = Vector(120 * math.cos(angle * i), 120 * math.sin(angle * i))
-    #    polyB.addPoint(newPt)
+    #polyB.addPoint(Vector(-160.0, -160.0))
+    #polyB.addPoint(Vector(-160.0, 160.0))
+    #polyB.addPoint(Vector(160.0, 160.0))
+    #polyB.addPoint(Vector(160.0, -160.0))
+    angle = 2.0 * math.pi / 16.0
+    for i in range(0, -16, -1):
+        newPt = Vector(120 * math.cos(angle * i), 120 * math.sin(angle * i))
+        polyB.addPoint(newPt)
 
     pygame.init()
     screen = pygame.display.set_mode((800, 600))
