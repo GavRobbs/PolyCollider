@@ -1,15 +1,15 @@
 # PolyCollider
-A short demo of the GJK, EPA and Sutherland-Hodge algorithms, useful for testing arbitrary convex polygon collisions and getting contact points in a physics engine, written in Python.
+A short demo of the SAT, GJK, EPA and Sutherland-Hodge algorithms, useful for testing arbitrary convex polygon collisions and getting contact points in a physics engine, written in Python.
 
 ## Motivation
 
-I wrote these 3 scripts to help me understand these algorithms better during an attempt to implement a 2d physics engine in C++. Each of these algorithms has a different utility in the collision detection phase of a physics engine.
+I wrote these 4 scripts to help me understand these algorithms better during an attempt to implement a 2d physics engine in C++. Each of these algorithms has a different utility in the collision detection phase of a physics engine.
 
-GJK (Gilbert-Johnson-Keerthi algorithm) - This is used during narrow phase collision detection to determine if two arbitrary polygons are actually colliding. You probably shouldn't use this for simple boxes and circles because there are faster tests for those, such as the separating axis test (SAT).
+SAT (Separating Axis Test) - Used during narrow phase collision detection to determine if two polygons are colliding. The test is derived from the Hyperplane Separation Theorem. If the polygons are colliding, the separating axis test can tell you what the axis of least overlap is, and how far along the overlap is, giving a collision normal and penetration depth.
 
-EPA (Expanding Polytope Algorithm) - This expands on the GJK algorithm to generate a collision normal and penetration depth, useful for linear collision response.
+GJK (Gilbert-Johnson-Keerthi algorithm) - This is used during narrow phase collision detection to determine if two arbitrary polygons are actually colliding. It is combined with the EPA (Expanding Polytope Algorithm) to generate a collision normal and penetration depth, useful for linear collision response.
 
-Sutherland-Hodgeman Polygon Clipping Algorithm - This uses the normal and penetration depth obtained from the EPA to determine collision points between two polygons, useful for rotational collision response.
+Sutherland-Hodgeman Polygon Clipping Algorithm - This uses the normal and penetration depth obtained from the SAT or EPA to determine collision points between two polygons, useful for rotational collision response.
 
 ## References
 
@@ -20,6 +20,8 @@ https://fjinn.github.io/Experiences/Programming/Math/GJKAlgorithm_README.html
 https://github.com/kroitor/gjk.c
 
 https://www.youtube.com/watch?v=Qupqu1xe7Io
+
+https://personal.math.vt.edu/mrlugo/sat.html
 
 ## Prerequisites
 
@@ -84,9 +86,7 @@ TODO: Insert diagram here so its less confusing
 
 There is a simplified formula that can be used for the vector triple product:
 
-$$(\vec{A}\times\vec{B})\times\vec{C} = \vec{B}(\vec{C}\cdot\vec{A})$$ -\vec{A}(\vec{C}\cdot\vec{B}) 
-
-It is informally known as the BAC-CAB rule, as an aid to memory. The derivation is somewhat complex, so you'll have to take my word for it, or at least look it up.
+$$(\vec{A}\times\vec{B})\times\vec{C} = \vec{B}(\vec{C}\cdot\vec{A}) -\vec{A}(\vec{C}\cdot\vec{B}) $$
 
 ### Edge Normals and Winding Order
 
@@ -133,7 +133,7 @@ The normal vector is often used to specify what direction an edge of a geometric
 
 The normal vector can be said to specify a unique edge in 2D or a unique plane in 3D. This creates the concept of points being in front of or behind the plane.
 
-A point is considered in front of an edge when its direction relative to the edge is the same as its normal. For example, for an edge with a normal of (-3, 0), which means it faces left, a point at (-5, 0) is considered in front of it, because it is to the left of the edge, while a point at (2, 0) is considered to be behind it, as it is to the right of the normal direction. 
+A point is considered in front of an edge when its direction relative to the edge is the same sign as its normal and the magnitude is greater. For example, for an edge with a normal of (-3, 0), which means it faces left, a point at (-5, 0) is considered in front of it, because it is to the left of the edge, while a point at (2, 0) is considered to be behind it, as it is to the right of the normal direction. 
 
 For normals at an angle, visual description becomes a bit more difficult, but its not hard to determine mathematically. For an edge between two points $\vec{A}$ and $\vec{B}$, we can determine if $\vec{C}$ is front of, behind or on the edge as follows:
 
