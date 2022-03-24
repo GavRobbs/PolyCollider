@@ -1,4 +1,5 @@
 import epa
+import sat
 from utils.utilbase import *
 
 class SutherlandHodgemanAlgorithm:
@@ -183,7 +184,15 @@ if __name__ == '__main__':
     currentControl = 1
     speed = 6.0
     rot_speed = 0.15
-    
+
+    algorithm = 0
+
+    isColliding = False
+    penetrationDepth = 0
+    normal_vector = Vector()
+
+    font = pygame.font.SysFont(None, 24)
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -193,6 +202,10 @@ if __name__ == '__main__':
                     currentControl = 1
                 elif event.key == pygame.K_2:
                     currentControl = 2
+                elif event.key == pygame.K_s:
+                    algorithm = 0
+                elif event.key == pygame.K_e:
+                    algorithm = 1
 
         keys = pygame.key.get_pressed()
         if currentControl == 1:
@@ -203,25 +216,33 @@ if __name__ == '__main__':
             polyB.origin += Vector(keys[pygame.K_RIGHT] - keys[pygame.K_LEFT], keys[pygame.K_DOWN] - keys[pygame.K_UP]) * speed * 0.1666
             polyB.rotation += keys[pygame.K_r] * rot_speed * 0.1666
 
-        myEPA = epa.ExpandingPolytopeAlgorithm(polyA, polyB)
-        (isColliding, penetrationDepth, normal_vector) = myEPA.calculate()
+        if algorithm == 0:
+            mySAT = sat.SeparatingAxisTest(polyA, polyB)
+            (isColliding, penetrationDepth, normal_vector) = mySAT.calculate()
+        elif algorithm == 1:
+            myEPA = epa.ExpandingPolytopeAlgorithm(polyA, polyB)
+            (isColliding, penetrationDepth, normal_vector) = myEPA.calculate()
 
         screen.fill((0, 0, 0))
-        drawPolygon(screen, myEPA.polygonA, color = (255, 255, 255) if not isColliding else (255, 0, 0))
-        drawPolygon(screen, myEPA.polygonB, color = (255, 255, 255) if not isColliding else (255, 0, 0))
+        drawPolygon(screen, polyA, color = (255, 255, 255) if not isColliding else (255, 0, 0))
+        drawPolygon(screen, polyB, color = (255, 255, 255) if not isColliding else (255, 0, 0))
 
         if isColliding:
-            font = pygame.font.SysFont(None, 24)
             penDepthText = font.render("Penetration Depth " + str(round(penetrationDepth, 2)), True, (255, 255, 255))
             normDirText = font.render("Normal " + str(normal_vector), True, (255, 255, 255))
-            screen.blit(penDepthText, (500, 500))
-            screen.blit(normDirText, (500, 550))
 
-            pointGenerator = SutherlandHodgemanAlgorithm(myEPA.polygonA, myEPA.polygonB, normal_vector, penetrationDepth)
+            screen.blit(penDepthText, (500, 500))
+            screen.blit(normDirText, (500, 530))
+
+
+            pointGenerator = SutherlandHodgemanAlgorithm(polyA, polyB, normal_vector, penetrationDepth)
             collisionPoints = pointGenerator.calculate()
 
             for point in collisionPoints:
                 drawCircle(screen, point, 3.0, color=(0, 0, 255))
+
+        algoText = font.render("Using: SAT" if algorithm == 0 else "Using: EPA", True, (255, 255, 255))
+        screen.blit(algoText, (500, 560))
 
         pygame.display.flip()
         clock.tick(60)
