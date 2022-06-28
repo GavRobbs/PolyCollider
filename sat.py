@@ -9,7 +9,7 @@ class SeparatingAxisTest:
         self.polyBPoints = polyB.getTransformedPoints()[0]
 
         #Generate a big list made up of all the potential separating axes of both polygons
-        self.axes = [edge.getNormal(self.polyAPoints, True) * -1.0 for edge in polyA.getEdgeList().edges] + [edge.getNormal(self.polyBPoints, True) * -1.0 for edge in polyB.getEdgeList().edges]
+        self.axes = [edge.getNormal(self.polyAPoints, True) for edge in polyA.getEdgeList().edges] + [edge.getNormal(self.polyBPoints, True) for edge in polyB.getEdgeList().edges]
 
     def calculate(self):
 
