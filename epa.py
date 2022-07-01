@@ -42,6 +42,7 @@ class ExpandingPolytopeAlgorithm(gjk.GJKAlgorithm):
                     normal = normal * -1.0
 
                 if(distance < minDistance):
+                    #print("New min dist " + str(distance) + " " + str(normal) + " old was " + str(minDistance))
                     minDistance = distance
                     minNormal = normal
                     minIndex = j
@@ -55,7 +56,7 @@ class ExpandingPolytopeAlgorithm(gjk.GJKAlgorithm):
                 minDistance = float('inf')
                 polytope.insert(minIndex, supportPoint)
         
-        return (True, minDistance + self.TOLERANCE, minNormal)
+        return (True, minDistance + self.TOLERANCE, minNormal * -1)
  
 if __name__ == '__main__':
     polyA = Polygon(Vector(165.0, 175.0))
