@@ -118,7 +118,7 @@ class Polygon:
     
 
 def support(polyA, polyB, normal):
-    return polyA.getFurthestPoint(normal) - polyB.getFurthestPoint(-1.0 * normal)
+    return polyB.getFurthestPoint(normal) - polyA.getFurthestPoint(-1.0 * normal)
 
 def getCrossProduct(p1, p2):
     return [p1[1] * p2[2] - p1[2] * p2[1], -(p1[0] * p2[2] - p1[2] * p2[0]), p1[0] * p2[1] - p1[1] * p2[0]]

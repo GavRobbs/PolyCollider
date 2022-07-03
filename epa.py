@@ -56,7 +56,7 @@ class ExpandingPolytopeAlgorithm(gjk.GJKAlgorithm):
                 minDistance = float('inf')
                 polytope.insert(minIndex, supportPoint)
         
-        return (True, minDistance + self.TOLERANCE, minNormal * -1)
+        return (True, minDistance + self.TOLERANCE, minNormal)
  
 if __name__ == '__main__':
     polyA = Polygon(Vector(165.0, 175.0))
